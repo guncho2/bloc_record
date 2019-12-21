@@ -3,8 +3,8 @@ module BlocRecord
 
           extend self
 
-                def underscore(camel_case_word)
-                   string = camel_closed_word.gsub(/::/, '/')
+                def underscore(camel_cased_word)
+                   string = camel_cased_word.gsub(/::/, '/')
                    string.gsub!(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
 
                    string.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
@@ -28,7 +28,7 @@ module BlocRecord
                 end
 
                 def convert_keys(options)
-                        options.keys.each {|k| options[k.to_s] = options.delete(k) if k.kind_of?(Simbol)}
+                        options.keys.each {|k| options[k.to_s] = options.delete(k) if k.kind_of?(Symbol)}
                         options
                 
                 end
