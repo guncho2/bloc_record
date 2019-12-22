@@ -1,0 +1,72 @@
+What's a RubyGem and why would you use one?
+
+"RubyGems" 
+ 
+
+   RubyGem is a program in a form of package ready to download which brings an application or and library which clould be used
+   at a project.
+
+What's the difference between lazy and eager loading?
+
+
+ Lazy loading start to when is required by the application process is requested. Eager loading start the process
+ s soon as the application start to process data.
+
+
+What's the difference between the CREATE TABLE and INSERT INTO SQL statements?
+
+CREATE TABE create a table with the columns as their attributes and the rows specifying the type of attributes as 
+ids, text string numerical.
+
+INSERT INTO add the values to the attributes rows.
+
+What's the difference between extend and include? When would you use one or the other?
+
+Includes add a module at the top class where all methods will be added to the module as instanced methods. Extend will allow the
+module methods work as a class methods which those methods will not be required an instance of that class.
+
+In persistence.rb, why do the save methods need to be instance (vs. class) methods?
+
+Instanced methods need to be instance ot the class in order to access an object.
+
+Given the Jar-Jar Binks example earlier, what is the final SQL query in persistence.rb's save! method?
+
+UPDATE characters
+SET character_name=’Jar-Jar Binks’
+WHERE id = 1
+
+AddressBook's entries instance variable no longer returns anything. We'll fix this in a later checkpoint. 
+What changes will we need to make?
+
+At the moment we are loading data from an empty array so updating AddressBook to us BlocRecord will link a relationship
+betweenthe address book and its entries
+
+Programming Questions
+Write a Ruby method that converts snake_case to CamelCase using regular expressions (you can test them on Rubular).
+ Send your code in the submission tab.
+
+ eduardos-MBP:bloc_record eduardolowensohn$ irb
+2.5.1 :001 > string = "eduardo_daniel_lowensohn".gsub(/_+(\w)/){$1.upcase}  
+ => "eduardoDanielLowensohn" 
+
+Add a select method which takes an attribute and value and searches for all records that match:
+
+
+def find_by(col, value)
+  sql = <<-SQL
+    SELECT #{columns.join ","}
+    FROM #{table}
+    WHERE #{col}=#{value}
+  SQL
+
+  rows = connection.execute sql
+
+  data = rows.map { |row| Hash[columns.zip(row)] }
+  data.map { |x| new(x) }
+end
+
+
+Assuming you have an AddressBook, it might get called like this:
+
+myAddressBook = AddressBook.find_by("name", "My Address Book")
+Your code should use a SELECT…WHERE SQL query and return an array of objects to the caller. Send your code in the submission tab.

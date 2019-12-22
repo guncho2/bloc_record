@@ -11,3 +11,19 @@ module Selection
     new(data)
   end
 end
+
+
+
+def find_by(col, value)
+  sql = <<-SQL
+    SELECT #{columns.join ","}
+    FROM #{table}
+    WHERE #{col}=#{value}
+  SQL
+
+  rows = connection.execute sql
+
+  data = rows.map { |row| Hash[columns.zip(row)] }
+  data.map { |x| new(x) }
+end
+
