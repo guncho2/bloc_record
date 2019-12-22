@@ -15,7 +15,7 @@ What's the difference between lazy and eager loading?
 
 What's the difference between the CREATE TABLE and INSERT INTO SQL statements?
 
-CREATE TABE create a table with the columns as their attributes and the rows specifying the type of attributes as 
+CREATE TABLE create a table with the columns as their attributes and the rows specifying the type of attributes as 
 ids, text string numerical.
 
 INSERT INTO add the values to the attributes rows.
