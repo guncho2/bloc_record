@@ -15,13 +15,13 @@ module Selection
     end
   end
   
-  def find_one(id)
-    row = connection.get_first_row <<-SQL
-      SELECT #{columns.join ","} FROM #{table}
-      WHERE id = #{id};
-    SQL
-     init_object_from_row(row)
-  end
+  # def find_one(id)
+  #   row = connection.get_first_row <<-SQL
+  #   SELECT #{columns.join ","} FROM #{table}
+  #   WHERE id = #{id};
+  #  SQL
+  #   init_object_from_row(row)
+  # end
 
 
 
@@ -85,7 +85,11 @@ module Selection
     rows_to_array(rows)
   end
 
-  private
+  
+
+end
+
+private
 
   def init_object_from_row(row)
     if row 
@@ -98,6 +102,6 @@ module Selection
     rows.map { |row| new(Hash[columns.zip(row)])}
   end
 
-end
 
+end
 
