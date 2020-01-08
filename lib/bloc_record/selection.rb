@@ -1,9 +1,7 @@
 require 'sqlite3'
-
 module Selection
 
-  def find(*ids)
-    
+  def find(*ids)   
     if ids.length == 1
       find_one(ids.first)
     else 
@@ -15,7 +13,6 @@ module Selection
           return -1
         end
       end
-    
       rows = connection.execute <<-SQL
         SELECT #{columns.join ","} FROM #{table}
         WHERE id IN (#{ids.join(",")});
@@ -24,29 +21,14 @@ module Selection
     end
   end
 
-
-  
-  #  def find_one(id)
-  #   if id.is_a?(Integer) && id > 0
-  #    row = connection.get_first_row <<-SQL
-  #     SELECT #{columns.join ","} FROM #{table}
-  #     WHERE id = #{id};
-  #    SQL
-  #    init_object_from_row(row)
-  #   else
-  #     puts "This is not a valid ID"
-  #     return -1
-  #   end
-  #  end
-   
-
   def find_by(attribute, value)
-    rows = connection.execute <<-SQL
+    row = connection.get_first_row <<-SQL
      SELECT #{columns.join ","} FROM #{table}
      WHERE #{attribute} = #{BlocRecord::Utility.sql_strings(value)};
     SQL
-    rows_to_array(rows)
+    init_object_from_row(row)
   end
+
 
   def take(num=1)
     if num > 1
@@ -106,12 +88,12 @@ def find_each(options={})
      SELECT #{columns.join ","} FROM #{table}
      LIMIT #{batch_size} OFFSET #{start};
     SQL
-  elseif start == nil && batch_size != nil
+  elsif start == nil && batch_size != nil
     rows = connection.execute <<-SQL
       SELECT #{columns.join ","} FROM #{table}
       LIMIT #{batch_size};
     SQL
-  elseif start != nil && batch_size == nil
+  elsif start != nil && batch_size == nil
     rows = connection.execute <<-SQL
       SELECT #{columns.join ","} FROM #{table}
       OFFSET #{start};
@@ -122,19 +104,53 @@ def find_each(options={})
     SQL
   end
 
+  rows.each do |row|
+    yield init_object_from_row(row)
+  end
+end
+
+
+def find_in_batches(options={})
+  start = options[:start]
+  batch_size = options[:batch_size]
+  if start != nil && batch_size != nil
+    rows = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      LIMIT #{batch_size} OFFSET #{start};
+    SQL
+  elsif start == nil && batch_size != nil
+    rows = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      LIMIT #{batch_size};
+    SQL
+  elsif start != nil && batch_size == nil
+    rows = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      OFFSET #{start};
+    SQL
+  else
+    rows = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table};
+    SQL
+  end
+
   row_array = rows_to_array(rows)
   yield(row_array)
 end
 
-def find_in_batches(start, batch_size)
-  rows = connection.execute <<-SQL
-    SELECT #{columns.join ","} FROM #{table}
-    LIMIT #{batch_size} OFFSET #{start};
-  SQL
-  row_array = rows_to_array(rows)
-  yeld(row_array)
-end
 
+def find_one(id)
+  if id.is_a?(Integer) && id > 0
+   row = connection.get_first_row <<-SQL
+    SELECT #{columns.join ","} FROM #{table}
+    WHERE id = #{id};
+   SQL
+   init_object_from_row(row)
+  else
+    puts "This is not a valid ID"
+    return -1
+  end
+ end
 
 
 private
