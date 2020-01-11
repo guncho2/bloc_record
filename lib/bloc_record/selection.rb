@@ -212,8 +212,59 @@ end
 
 
 
+
+
   #If the order local variable is a Symbol, to_s will convert it to a string. If it's already a String,
   #to_s will have no effect and the string will be interpolated directly into the SQL query.
+
+  
+  # def join(arg)
+  #   if arg.class == String
+    
+  #     rows = connection.execute <<-SQL
+  #       SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(arg)};
+  #     SQL
+  #   elsif arg.class == Symbol
+  #     rows = connection.execute <<-SQL
+  #       SELECT * FROM #{table}
+  #       INNER JOIN #{arg} ON #{arg}.#{table}_id = #{table}.id
+  #     SQL
+
+  #   end
+
+  #   rows_to_array(rows)
+  # end
+
+  
+
+  def join(*args)
+
+    if args.count > 1
+      joins = args.map { |arg| "INNER JOIN #{arg} ON #{arg}.#{table}_id = #{table}.id"}.join(" ")
+      rows = connection.execute <<-SQL
+        SELECT * FROM #{table} #{joins}
+      SQL
+    else
+      case args.first
+      when String
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(args.first)};
+        SQL
+      when Symbol
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table}
+          INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
+        SQL
+      end
+    end
+    rows_to_array(rows)
+  end
+
+#   If arg is a Symbol, we'll create a very specific SQL statement. For example, 
+# calling Employee.join(:department) would result in this query:
+# SELECT * FROM employee
+# INNER JOIN department ON department.employee_id = employee.id
+
 
 
 private
