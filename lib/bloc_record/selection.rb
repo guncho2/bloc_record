@@ -284,21 +284,24 @@ private
   end
   
   def rows_to_array(rows)
-    rows.map { |row| new(Hash[columns.zip(row)])}
+    # rows.map { |row| new(Hash[columns.zip(row)])}
+    collection = BlocRecord::Collection.new
+    rows.each { |row| collection << new(Hash[columns.zip(row)]) }
+    collection
   end
 
-  def method_missing(method_name, *args)
-    if method_name.match(/find_by/)
-      attribute = method_name.to_s.split('find_by_')[1]
-      if columns.include?(attribute)
-        find_by(attribute, *args)
-      else
-        puts "#{attribute} is not at the DB"
-      end
-    else
-      puts "#{methid_name} is not available"
-      end
-  end
+  # def method_missing(method_name, *args)
+  #   if method_name.match(/find_by_/)
+  #     attribute = method_name.to_s.split('find_by_')[1]
+  #     if columns.include?(attribute)
+  #       find_by(attribute, *args)
+  #     else
+  #       puts "#{attribute} is not at the DB"
+  #     end
+  #   else
+  #     puts "#{method_name} is not available"
+  #     end
+  # end
 
 end
 

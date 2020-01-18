@@ -1,5 +1,7 @@
 require 'sqlite3'
 require 'bloc_record/schema'
+require 'bloc_record/error_handling'
+
 
 module Persistence
 
@@ -32,7 +34,28 @@ module Persistence
            true
         end
       
+        def update_attribute(attribute, value)
+          self.class.update(self.id, { attribute => value})
+        end
+
+        def update_attributes(updates)
+          self.class.update(self.id, updates)
+        end
+
+
+        #update_attribute passes self.class.update its own id and a hash of the attributes that should be updated.
+         #self.class is used to gain access to an unknown object's class. We need this to call update since it is a 
+         #class method rather than an instance method (defined in the module ClassMethods).
+         #The instance method has two parameters: attribute and value. attribute is used as the name of the attribute
+          #to which value is assigned.
+
+
         module ClassMethods
+
+          def update_all(updates)
+            update(nil, updates)
+          end
+          
                 def create(attrs)
                   attrs = BlocRecord::Utility.convert_keys(attrs)
                   attrs.delete "id"
@@ -47,5 +70,45 @@ module Persistence
                   data["id"] = connection.execute("SELECT last_insert_rowid();")[0][0]
                   new(data)
                 end
-        end
+
+                
+
+                def update_mult(ids, updates)
+                  if updates.is_a? Array
+                    count = 0
+                    while count < ids.length
+                      update(ids[count], updates[count])
+                      count += 1
+                    end
+                  else
+                    update(ids, updates)
+                  end
+                end
+
+
+                def update(ids, updates)
+                  #1
+                  updates = BlocRecord::Utility.convert_keys(updates)
+                  updates.delete "id"
+                  #2
+                  updates_array = updates.map { |key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}" }
+                  #4
+                  # where_clause = id.nil? ? ";" : "WHERE id = #{id};"
+                  if ids.class == Fixnum
+                    where_clause = "WHERE id = #{ids};"
+                  elsif ids.class == Array
+                    where_clause = ids.empty? ? ";" : "WHERE id IN (#{ids.join(",")});"
+                  else
+                    where_clause = ";"
+                  end
+                  #3
+                  connection.execute <<-SQL
+                    UPDATE #{table}
+                   
+                    SET #{updates_array * ","} #{where_clause}
+                  SQL
+
+                  true
+                end
+         end
 end
