@@ -87,12 +87,12 @@ module Persistence
 
 
                 def update(ids, updates)
-                  #1
+                  
                   updates = BlocRecord::Utility.convert_keys(updates)
                   updates.delete "id"
-                  #2
+                  
                   updates_array = updates.map { |key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}" }
-                  #4
+                  
                   # where_clause = id.nil? ? ";" : "WHERE id = #{id};"
                   if ids.class == Fixnum
                     where_clause = "WHERE id = #{ids};"
@@ -101,7 +101,7 @@ module Persistence
                   else
                     where_clause = ";"
                   end
-                  #3
+                  
                   connection.execute <<-SQL
                     UPDATE #{table}
                    
