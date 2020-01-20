@@ -1,3 +1,4 @@
+require 'bloc_record/persistence'
 module BlocRecord
         class Collection < Array
            #5

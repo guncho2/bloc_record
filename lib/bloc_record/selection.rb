@@ -1,5 +1,6 @@
 require 'sqlite3'
-require 'bloc_record/error_handling'
+require 'bloc_record/persistence'
+# require 'bloc_record/error_handling'
 module Selection
 
   def find(*ids)   
