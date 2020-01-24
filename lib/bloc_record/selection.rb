@@ -1,6 +1,8 @@
 require 'sqlite3'
 require 'bloc_record/persistence'
-# require 'bloc_record/error_handling'
+require 'bloc_record/collection'
+
+
 module Selection
 
   def find(*ids)   
@@ -15,10 +17,11 @@ module Selection
           return -1
         end
       end
-      rows = connection.execute <<-SQL
-        SELECT #{columns.join ","} FROM #{table}
-        WHERE id IN (#{ids.join(",")});
-      SQL 
+      rows = connection.execute sql sql = <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      WHERE id IN (#{ids.join(",")});
+      SQL
+
       rows_to_array(rows)
     end
   end
@@ -30,6 +33,7 @@ module Selection
     SQL
     init_object_from_row(row)
   end
+  
 
 
   def take(num=1)
@@ -80,7 +84,7 @@ module Selection
     SQL
     rows_to_array(rows)
   end
-end
+
 
 def find_each(options={})
   start = options[:start]
@@ -153,6 +157,18 @@ def find_one(id)
     return -1
   end
  end
+
+ def not(params)
+  results = BlocRecord::Collection.new
+  self.each do |item|
+    params.each do |k, v|
+      if item.send(k) != v && results.include?(item) == false
+        results << item
+      end
+    end
+  end
+  results
+end
 
 def where(*args)
   if args.count > 1
@@ -274,6 +290,40 @@ end
 # SELECT * FROM employee
 # INNER JOIN department ON department.employee_id = employee.id
 
+# def method_missing(method_name, *args)
+#   if method_name.match(/find_by/)
+#     attribute = method_name.to_s.split('find_by_')[1]
+#     if columns.include?(attribute)
+#       find_by(attribute, *args)
+#     else
+#       puts "#{attribute} is not at the DB"
+#     end
+#   else
+#     puts "#{methid_name} is not available"
+#     end
+# end
+
+def method_missing(method_name, *args)
+  if method_name.match(/find_by/)
+    attribute = method_name.to_s.split('find_by_')[1]
+    if columns.include?(attribute)
+      self.find_by(attribute, args.first)
+    else
+      puts "#{attribute} does not exist in the database -- please try again."
+    end
+  elsif method_name.match(/update_/)
+    attribute = method_name.to_s.split('update_')[1]
+    if self.class.columns.include?(attribute)
+      self.class.update(self.id,{attribute => args.last})
+    else
+      puts "#{attribute} does not exist in the database -- please try again."
+    end
+  else
+    super
+  end
+end
+
+
 
 
 private
@@ -286,27 +336,20 @@ private
   end
   
   def rows_to_array(rows)
-    # rows.map { |row| new(Hash[columns.zip(row)])}
-    collection = BlocRecord::Collection.new
-    rows.each { |row| collection << new(Hash[columns.zip(row)]) }
-    collection
+    rows.map { |row| new(Hash[columns.zip(row)])}
   end
 
-  # def method_missing(method_name, *args)
-  #   if method_name.match(/find_by_/)
-  #     attribute = method_name.to_s.split('find_by_')[1]
-  #     if columns.include?(attribute)
-  #       find_by(attribute, *args)
-  #     else
-  #       puts "#{attribute} is not at the DB"
-  #     end
-  #   else
-  #     puts "#{method_name} is not available"
-  #     end
+  # def rows_to_array(rows)
+  #   collection = BlocRecord::Collection.new
+  #   rows.each { |row| collection << new(Hash[columns.zip(row)]) }
+  #   collection
   # end
 
+
+
+
+  
 end
 
 
 
-#assign1
