@@ -21,35 +21,35 @@ module BlocRecord
           #   end
           # end
 
-          # def where(params)
-          #   results = BlocRecord::Collection.new
-          #   params_to_meet = params.keys.length
+          def where(params)
+            results = BlocRecord::Collection.new
+            params_to_meet = params.keys.length
 
-          #   self.each do |item|
-          #     params_met = 0
-          #     params.each do |k, v|
-          #       if item.send(k) == v
-          #         params_met += 1
-          #         if params_to_meet == params_met && results.include?(item) == false
-          #           results << item
-          #         end
-          #       end
-          #     end
-          #   end
-          #   results
-          # end
+            self.each do |item|
+              params_met = 0
+              params.each do |k, v|
+                if item.send(k) == v
+                  params_met += 1
+                  if params_to_meet == params_met && results.include?(item) == false
+                    results << item
+                  end
+                end
+              end
+            end
+            results
+          end
 
-          # def not(params)
-          #   results = BlocRecord::Collection.new
-          #   self.each do |item|
-          #     params.each do |k, v|
-          #       if item.send(k) != v && results.include?(item) == false
-          #         results << item
-          #       end
-          #     end
-          #   end
-          #   results
-          # end
+          def not(params)
+            results = BlocRecord::Collection.new
+            self.each do |item|
+              params.each do |k, v|
+                if item.send(k) != v && results.include?(item) == false
+                  results << item
+                end
+              end
+            end
+            results
+          end
 
 
         end

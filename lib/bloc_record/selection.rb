@@ -35,30 +35,61 @@ module Selection
   end
   
 
-
-  def take(num=1)
-    if num > 1
-      rows = connection.execute <<-SQL
-        SELECT #{columns.join ","} FROM #{table}
-        ORDER BY random()
-        LIMIT #{num};
-      SQL
-      rows_to_array(rows)
-      else
-        take_one
-    end
-  end
-
-
   def take_one
-
-    row = connection.get_first_row <<-SQL
-      SELECT #{columns.join ","} FROM #{table}
+    sql = <<-SQL
+      SELECT #{columns.join ","}
+      FROM #{table}
       ORDER BY random()
       LIMIT 1;
     SQL
+
+    row = connection.get_first_row(sql)
+
     init_object_from_row(row)
   end
+
+  
+  def take(num=string)
+    # raise "Invalid input, #{num}. Must be a positive integer." 
+    if (!num.is_a? String) || (num < 0)
+    return take_one 
+    else
+    sql = <<-SQL
+      SELECT #{columns.join ","}
+      FROM #{table}
+      ORDER BY random()
+      LIMIT #{num};
+    SQL
+
+    rows = connection.execute(sql)
+
+    rows_to_array(rows)
+    end
+  end
+
+  # def take(num=1)
+  #   if num > 1
+  #     rows = connection.execute <<-SQL
+  #       SELECT #{columns.join ","} FROM #{table}
+  #       ORDER BY random()
+  #       LIMIT #{num};
+  #     SQL
+  #     rows_to_array(rows)
+  #     else
+  #       take_one
+  #   end
+  # end
+
+
+  # def take_one
+
+  #   row = connection.get_first_row <<-SQL
+  #     SELECT #{columns.join ","} FROM #{table}
+  #     ORDER BY random()
+  #     LIMIT 1;
+  #   SQL
+  #   init_object_from_row(row)
+  # end
 
   def first
     row = connection.get_first_row <<-SQL
