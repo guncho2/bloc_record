@@ -24,14 +24,16 @@ module BlocRecord
           def where(params)
             results = BlocRecord::Collection.new
             params_to_meet = params.keys.length
-
+           
             self.each do |item|
               params_met = 0
+              
               params.each do |k, v|
                 if item.send(k) == v
                   params_met += 1
                   if params_to_meet == params_met && results.include?(item) == false
                     results << item
+                    params_met = 0
                   end
                 end
               end
@@ -54,11 +56,11 @@ module BlocRecord
           def destroy_all
             self.each do |element|
               element.destroy
-              puts "#{element} was deleted from the database"
+              puts "#{element} was deleted "
             end
           end
 
-          
+
 
 
         end
