@@ -51,6 +51,15 @@ module BlocRecord
             results
           end
 
+          def destroy_all
+            self.each do |element|
+              element.destroy
+              puts "#{element} was deleted from the database"
+            end
+          end
+
+          
+
 
         end
  end

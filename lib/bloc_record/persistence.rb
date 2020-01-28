@@ -7,9 +7,17 @@ module Persistence
     self.class.update(self.id, { attribute => value})
   end
 
+  
   def update_attributes(updates)
     self.class.update(self.id, updates)
   end
+
+  #We may have an instance of a model object that we want to delete like so: e = Entry.first e.destroySince each model
+   #Since each model object knows its own id, we can delegate the work to the class method:
+
+   def destroy
+    self.class.destroy(self.id)
+   end
 
   
 
@@ -44,9 +52,84 @@ module Persistence
       
         module ClassMethods
 
+          #We might want to destroy all records: Entry.destroy_all For example, we might want to do this before 
+          #seeding or importing a new set of records.
+
+          # def destroy_all
+          #   connection.execute <<-SQL
+          #    DELETE FROM #{table}
+          #   SQL
+          #    true
+          # end
+
+          #Destroy All Records With Conditions, Let's say we want to remove all users who are exactly 20 years old: User.destroy_all(age: 20)
+          #To accomplish this, let's modify destroy_all to accept an optional conditions_hash:
+
+          def destroy_all(condition_params=nil)
+            if condition_params && !condition_params.empty?
+
+              case condition_params
+                
+              when Hash
+
+                condition_params = BlocRecord::Utility.convert_keys(condition_params)
+                conditions = condition_params.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+
+              when String
+
+                conditions = condition_params
+
+              when Array
+
+                conditions = condition_params.join("\nOR ")
+
+              end
+             
+      
+              connection.execute <<-SQL
+                DELETE FROM #{table}
+                WHERE #{conditions};
+              SQL
+            else
+              connection.execute <<-SQL
+                DELETE FROM #{table}
+              SQL
+            end
+            true
+          end
+
+          #Now any conditions that are passed in will be appended in a WHERE statement like: DELETE FROM user WHERE age=20;
+
+
           def update_all(updates)
             update(nil, updates)
           end
+#Let's modify this method to support deleting more than one item. As usual, we'll use the splat operator to force
+ #the argument into an Array and check its length:
+
+#  Entry.destroy(1, 2, 3) instead of Entry.destroy(1)
+
+          #def destroy(id)
+           def destroy(*id)
+            if id.length > 1
+              where_clause = "WHERE id IN (#{id.join(",")});"
+            else
+              where_clause = "WHERE id = #{id.first};"
+            end
+                 
+            connection.execute <<-SQL
+             DELETE FROM #{table} #{where_clause}
+            SQL
+            true
+
+          end
+
+          #Which would result in this SQL query:
+          #DELETE FROM entry
+          #WHERE id IN (1,2,3);
+
+
+
 
                 def create(attrs)
                   attrs = BlocRecord::Utility.convert_keys(attrs)
