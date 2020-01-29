@@ -109,6 +109,9 @@ module Persistence
 
 #  Entry.destroy(1, 2, 3) instead of Entry.destroy(1)
 
+# DESTROY CHAPTER #
+
+
           #def destroy(id)
            def destroy(*id)
             if id.length > 1
