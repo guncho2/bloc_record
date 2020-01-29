@@ -12,14 +12,14 @@ module BlocRecord
             self.any? ? self.first.class.update(ids, updates) : false
           end
 
-          # def take(num = 1)
-          #   loop_point = 0
+          def take(num = 1)
+            loop_point = 0
 
-          #   while loop_point < num
-          #     puts self.sample
-          #     loop_point += 1
-          #   end
-          # end
+            while loop_point < num
+              puts self.sample
+              loop_point += 1
+            end
+          end
 
           def where(params)
             results = BlocRecord::Collection.new
@@ -33,7 +33,7 @@ module BlocRecord
                   params_met += 1
                   if params_to_meet == params_met && results.include?(item) == false
                     results << item
-                    params_met = 0
+                  
                   end
                 end
               end

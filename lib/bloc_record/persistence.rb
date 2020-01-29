@@ -69,7 +69,7 @@ module Persistence
             if condition_params && !condition_params.empty?
 
               case condition_params
-                
+
               when Hash
 
                 condition_params = BlocRecord::Utility.convert_keys(condition_params)
