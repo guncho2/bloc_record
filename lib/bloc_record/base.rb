@@ -4,6 +4,7 @@ require 'bloc_record/selection'
 require 'bloc_record/persistence'
 require 'bloc_record/connection'
 require 'bloc_record/collection'
+require 'bloc_record/associations'
 # Base will have a minimal implementation. Most of its functionality will be composed from other 
 # modules. We could add the module methods directly to Base, but placing them in separate modules 
 # makes the code more readable and easier to understand.
@@ -16,6 +17,7 @@ module BlocRecord
                 extend Selection
                 extend Schema
                 extend Connection
+                extend Associations
                 
                 def initialize(options={})
                         options = BlocRecord::Utility.convert_keys(options)
